@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guarda Tron Wallet Test Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .status-bar {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-value {
+            font-family: monospace;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .status-value.success {
+            color: #10b981;
+        }
+
+        .status-value.error {
+            color: #ef4444;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .test-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .test-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .test-card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: monospace;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Guarda Tron Wallet Test Page</h1>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-label">Extension Detected:</span>
+                <span class="status-value" id="extension-status">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Connected Address:</span>
+                <span class="status-value" id="connected-address">Not connected</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">TRX Balance:</span>
+                <span class="status-value" id="balance">-</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Network:</span>
+                <span class="status-value" id="network">Mainnet</span>
+            </div>
+        </div>
+
+        <!-- Test Grid -->
+        <div class="test-grid">
+            <!-- 1. Connection Tests -->
+            <div class="test-card">
+                <h3>Connection</h3>
+                <p>Test wallet connection and account retrieval</p>
+                <button onclick="testConnect()">Connect Wallet</button>
+                <button onclick="testGetAccounts()">Get Accounts</button>
+                <button onclick="testDisconnect()">Disconnect</button>
+            </div>
+
+            <!-- 2. Balance & Account Tests -->
+            <div class="test-card">
+                <h3>Balance & Account</h3>
+                <p>Check account balance and information</p>
+                <button onclick="testGetBalance()">Get Balance</button>
+                <button onclick="testGetAccount()">Get Account Info</button>
+                <button onclick="testGetResources()">Get Resources</button>
+            </div>
+
+            <!-- 3. Block Tests -->
+            <div class="test-card">
+                <h3>Blocks</h3>
+                <p>Query blockchain blocks</p>
+                <button onclick="testGetLatestBlock()">Get Latest Block</button>
+                <div class="input-group">
+                    <label>Block Number:</label>
+                    <input type="number" id="blockNumber" placeholder="e.g., 50000000" value="50000000">
+                </div>
+                <button onclick="testGetBlockByNumber()">Get Block by Number</button>
+            </div>
+
+            <!-- 4. Address Validation -->
+            <div class="test-card">
+                <h3>Address Utils</h3>
+                <p>Validate and convert addresses</p>
+                <div class="input-group">
+                    <label>Address:</label>
+                    <input type="text" id="addressToValidate" placeholder="TAddress...">
+                </div>
+                <button onclick="testIsAddress()">Validate Address</button>
+                <button onclick="testAddressConversion()">Convert Hex ↔ Base58</button>
+            </div>
+
+            <!-- 5. Transaction Builder -->
+            <div class="test-card">
+                <h3>Transaction Builder</h3>
+                <p>Create TRX transactions (not sent)</p>
+                <div class="input-group">
+                    <label>Receiver Address:</label>
+                    <input type="text" id="receiverAddress" placeholder="TReceiver...">
+                </div>
+                <div class="input-group">
+                    <label>Amount (in TRX):</label>
+                    <input type="number" id="amount" placeholder="0.1" step="0.01" value="0.1">
+                </div>
+                <button onclick="testCreateTransaction()">Create Transaction</button>
+            </div>
+
+            <!-- 6. TRC20 Tokens -->
+            <div class="test-card">
+                <h3>TRC20 Tokens</h3>
+                <p>Test USDT contract (read-only)</p>
+                <div class="input-group">
+                    <label>Token Contract:</label>
+                    <input type="text" id="tokenContract" value="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t" placeholder="Contract address">
+                </div>
+                <button onclick="testTRC20Balance()">Get Token Balance</button>
+                <button onclick="testTRC20Contract()">Get Contract Info</button>
+            </div>
+
+            <!-- 7. Message Signing -->
+            <div class="test-card">
+                <h3>Sign Message</h3>
+                <p>Sign a custom message</p>
+                <div class="input-group">
+                    <label>Message:</label>
+                    <input type="text" id="messageToSign" placeholder="Hello Tron!" value="Hello from Guarda!">
+                </div>
+                <button onclick="testSignMessage()">Sign Message</button>
+            </div>
+
+            <!-- 8. Send Transaction -->
+            <div class="test-card">
+                <h3>Send Transaction</h3>
+                <p>This will send a REAL transaction!</p>
+                <div class="input-group">
+                    <label>To Address:</label>
+                    <input type="text" id="sendToAddress" placeholder="TReceiver...">
+                </div>
+                <div class="input-group">
+                    <label>Amount (TRX):</label>
+                    <input type="number" id="sendAmount" placeholder="0.1" step="0.01" value="0.1">
+                </div>
+                <button onclick="testSendTransaction()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                    Send Transaction
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Console logging utilities
+        function log(message, type = 'info') {
+            console.log(`[${type.toUpperCase()}]`, message);
+        }
+
+        function logSuccess(message) {
+            log(`${message}`, 'success');
+        }
+
+        function logError(message) {
+            log(`${message}`, 'error');
+        }
+
+        function logInfo(message) {
+            log(`${message}`, 'info');
+        }
+
+        function logWarning(message) {
+            log(`${message}`, 'warning');
+        }
+
+        function updateStatus() {
+            // Check if extension is loaded
+            const hasExtension = !!(window.tronLink && window.tronWeb && window.tron);
+            document.getElementById('extension-status').textContent = hasExtension ? 'Loaded' : 'Not Found';
+            document.getElementById('extension-status').className = hasExtension ? 'status-value success' : 'status-value error';
+
+            // Check connected address
+            if (window.tronWeb && window.tronWeb.defaultAddress && window.tronWeb.defaultAddress.base58) {
+                document.getElementById('connected-address').textContent = window.tronWeb.defaultAddress.base58;
+                document.getElementById('connected-address').className = 'status-value success';
+            }
+        }
+
+        // Test Functions
+
+        async function testConnect() {
+            logInfo('Testing wallet connection...');
+            try {
+                const accounts = await window.tron.request({ method: 'tron_requestAccounts' });
+                logSuccess(`Connected! Address: ${accounts[0]}`);
+                document.getElementById('connected-address').textContent = accounts[0];
+                document.getElementById('connected-address').className = 'status-value success';
+
+                // Auto-fetch balance after connection
+                setTimeout(testGetBalance, 500);
+            } catch (error) {
+                logError(`Connection failed: ${error.message}`);
+            }
+        }
+
+        async function testGetAccounts() {
+            logInfo('Getting accounts...');
+            try {
+                const accounts = await window.tron.request({ method: 'tron_getAccounts' });
+                logSuccess(`Accounts: ${JSON.stringify(accounts)}`);
+            } catch (error) {
+                logError(`Failed: ${error.message}`);
+            }
+        }
+
+        async function testDisconnect() {
+            logInfo('Disconnecting...');
+            logWarning('Disconnect functionality depends on your implementation');
+        }
+
+        async function testGetBalance() {
+            logInfo('Getting balance...');
+            try {
+                const address = window.tronWeb.defaultAddress.base58;
+                if (!address) {
+                    logError('No address connected. Please connect first.');
+                    return;
+                }
+
+                const balance = await window.tronWeb.trx.getBalance(address);
+                const trx = balance / 1000000;
+                logSuccess(`Balance: ${balance} sun (${trx} TRX)`);
+                document.getElementById('balance').textContent = `${trx} TRX`;
+                document.getElementById('balance').className = 'status-value success';
+            } catch (error) {
+                logError(`Failed to get balance: ${error.message}`);
+            }
+        }
+
+        async function testGetAccount() {
+            logInfo('Getting account info...');
+            try {
+                const address = window.tronWeb.defaultAddress.base58;
+                if (!address) {
+                    logError('No address connected');
+                    return;
+                }
+
+                const account = await window.tronWeb.trx.getAccount(address);
+                logSuccess(`Account: ${JSON.stringify(account, null, 2)}`);
+            } catch (error) {
+                logError(`Failed: ${error.message}`);
+            }
+        }
+
+        async function testGetResources() {
+            logInfo('Getting account resources...');
+            try {
+                const address = window.tronWeb.defaultAddress.base58;
+                if (!address) {
+                    logError('No address connected');
+                    return;
+                }
+
+                const resources = await window.tronWeb.trx.getAccountResources(address);
+                logSuccess(`Bandwidth: ${resources.freeNetLimit || 0}, Energy: ${resources.EnergyLimit || 0}`);
+                logInfo(`Full resources: ${JSON.stringify(resources, null, 2)}`);
+            } catch (error) {
+                logError(`Failed: ${error.message}`);
+            }
+        }
+
+        async function testGetLatestBlock() {
+            logInfo('Getting latest block...');
+            try {
+                const block = await window.tronWeb.trx.getCurrentBlock();
+                const blockNum = block.block_header.raw_data.number;
+                const timestamp = new Date(block.block_header.raw_data.timestamp);
+                logSuccess(`Latest block: #${blockNum} at ${timestamp.toLocaleString()}`);
+            } catch (error) {
+                logError(`Failed: ${error.message}`);
+            }
+        }
+
+        async function testGetBlockByNumber() {
+            const blockNum = parseInt(document.getElementById('blockNumber').value);
+            logInfo(`Getting block #${blockNum}...`);
+            try {
+                const block = await window.tronWeb.trx.getBlockByNumber(blockNum);
+                logSuccess(`Block #${blockNum} retrieved`);
+                logInfo(`Transactions: ${block.transactions?.length || 0}`);
+            } catch (error) {
+                logError(`Failed: ${error.message}`);
+            }
+        }
+
+        async function testIsAddress() {
+            const address = document.getElementById('addressToValidate').value;
+            if (!address) {
+                logError('Please enter an address');
+                return;
+            }
+
+            logInfo(`Validating address: ${address}`);
+            try {
+                const isValid = await window.tronWeb.isAddress(address);
+                if (isValid) {
+                    logSuccess(`Address is valid ✓`);
+                } else {
+                    logError(`Address is invalid ✗`);
+                }
+            } catch (error) {
+                logError(`Failed: ${error.message}`);
+            }
+        }
+
+        async function testAddressConversion() {
+            const address = document.getElementById('addressToValidate').value || 'TLPWGqAqUSymRZeqJhvfbFhBfZ7YmQJQ1B';
+            logInfo(`Converting address: ${address}`);
+            try {
+                const hex = await window.tronWeb.address.toHex(address);
+                logSuccess(`Hex: ${hex}`);
+
+                const base58 = await window.tronWeb.address.fromHex(hex);
+                logSuccess(`Back to Base58: ${base58}`);
+            } catch (error) {
+                logError(`Failed: ${error.message}`);
+            }
+        }
+
+        async function testCreateTransaction() {
+            const receiver = document.getElementById('receiverAddress').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+
+            if (!receiver) {
+                logError('Please enter receiver address');
+                return;
+            }
+
+            logInfo(`Creating transaction: ${amount} TRX to ${receiver}`);
+            try {
+                const address = window.tronWeb.defaultAddress.base58;
+                if (!address) {
+                    logError('No address connected');
+                    return;
+                }
+
+                const amountSun = amount * 1000000;
+                const tx = await window.tronWeb.transactionBuilder.sendTrx(receiver, amountSun, address);
+                logSuccess(`Transaction created (not sent)`);
+                logInfo(`TX: ${JSON.stringify(tx, null, 2)}`);
+            } catch (error) {
+                logError(`Failed: ${error.message}`);
+            }
+        }
+
+        async function testTRC20Balance() {
+            const contract = document.getElementById('tokenContract').value;
+            logInfo(`Getting TRC20 balance for contract: ${contract}`);
+            try {
+                const address = window.tronWeb.defaultAddress.base58;
+                if (!address) {
+                    logError('No address connected');
+                    return;
+                }
+
+                const contractInstance = await window.tronWeb.contract().at(contract);
+                const balance = await contractInstance.balanceOf(address).call();
+                logSuccess(`Token balance: ${balance.toString()}`);
+                logInfo(`USDT balance: ${balance / 1000000} USDT (assuming 6 decimals)`);
+            } catch (error) {
+                logError(`Failed: ${error.message}`);
+            }
+        }
+
+        async function testTRC20Contract() {
+            const contract = document.getElementById('tokenContract').value;
+            logInfo(`Getting contract instance: ${contract}`);
+            try {
+                const contractInstance = await window.tronWeb.contract().at(contract);
+                logSuccess(`Contract loaded successfully`);
+                logInfo(`Methods available: balanceOf, transfer, approve, allowance`);
+            } catch (error) {
+                logError(`Failed: ${error.message}`);
+            }
+        }
+
+        async function testSignMessage() {
+            const message = document.getElementById('messageToSign').value;
+            logInfo(`Signing message: "${message}"`);
+            try {
+                const signature = await window.tronWeb.trx.signMessageV2(message);
+                logSuccess(`Message signed!`);
+                logInfo(`Signature: ${signature}`);
+            } catch (error) {
+                logError(`Failed: ${error.message}`);
+            }
+        }
+
+        async function testSendTransaction() {
+            const to = document.getElementById('sendToAddress').value;
+            const amount = parseFloat(document.getElementById('sendAmount').value);
+
+            if (!to || !amount) {
+                logError('Please fill in all fields');
+                return;
+            }
+
+            if (!confirm(`WARNING: This will send ${amount} TRX to ${to}. Continue?`)) {
+                logWarning('Transaction cancelled by user');
+                return;
+            }
+
+            logWarning(`Sending ${amount} TRX to ${to}...`);
+            try {
+                const address = window.tronWeb.defaultAddress.base58;
+                const amountSun = amount * 1000000;
+
+                // Create transaction
+                const tx = await window.tronWeb.transactionBuilder.sendTrx(to, amountSun, address);
+                logInfo('Transaction created, requesting signature...');
+
+                // Sign transaction
+                const signedTx = await window.tronWeb.trx.sign(tx);
+                logInfo('Transaction signed, broadcasting...');
+
+                // Send transaction
+                const result = await window.tronWeb.trx.sendRawTransaction(signedTx);
+                logSuccess(`Transaction sent! TXID: ${result.txid || result.transaction?.txID}`);
+                logInfo(`Result: ${JSON.stringify(result, null, 2)}`);
+            } catch (error) {
+                logError(`Transaction failed: ${error.message}`);
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            logInfo('Test page loaded');
+            updateStatus();
+
+            if (!window.tronLink || !window.tronWeb) {
+                logError('Guarda Wallet extension not detected. Please install and reload the page.');
+            } else {
+                logSuccess('Guarda Wallet extension detected!');
+                logInfo('Click "Connect Wallet" to begin testing');
+            }
+        });
+
+        // Update status every 2 seconds
+        setInterval(updateStatus, 2000);
+    </script>
+</body>
+</html>
