@@ -340,7 +340,7 @@
     id="walletStatus"
     class="wallet-status"
   >
-    Ожидание подключения кошелька...
+    Ожидание инициализации Guarda...
   </div>
 
   <!-- Табы для переключения между TRX и USDT -->
@@ -618,9 +618,8 @@
     if (amountNum === 0) {
       amountHint.textContent = '1 TRX = 1,000,000 SUN (макс. 6 знаков после точки)';
     } else {
-      const amountInSun = Math.floor(amountNum * 1000000);
-      const formattedSun = amountInSun.toLocaleString('en-US');
-      amountHint.textContent = `${amountNum} TRX = ${formattedSun} SUN`;
+      const amountInSun = Math.floor(amountNum * 1_000_000);
+      amountHint.textContent = `${amountNum} TRX = ${amountInSun} SUN`;
     }
   }
 
@@ -639,9 +638,8 @@
     if (amountNum === 0) {
       usdtAmountHint.textContent = 'USDT поддерживает 6 десятичных знаков';
     } else {
-      const amountInSmallest = Math.floor(amountNum * 1000000);
-      const formattedSmallest = amountInSmallest.toLocaleString('en-US');
-      usdtAmountHint.textContent = `${amountNum} USDT = ${formattedSmallest} наименьших единиц`;
+      const amountInSmallest = Math.floor(amountNum * 1_000_000);
+      usdtAmountHint.textContent = `${amountNum} USDT = ${amountInSmallest} наименьших единиц`;
     }
   }
 
@@ -814,7 +812,7 @@
   async function getUSDTBalance(address) {
     try {
       const USDT_CONTRACT_ADDRESS = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
-      const tronWeb = window.tronWeb || window.guarda?.tronWeb;
+      const tronWeb = window.guarda?.tronWeb;
 
       if (!tronWeb) {
         throw new Error('TronWeb не найден');
@@ -832,7 +830,7 @@
 
   async function getTRXBalance(address) {
     try {
-      const tronWeb = window.tronWeb || window.guarda?.tronWeb;
+      const tronWeb = window.guarda?.tronWeb;
       if (!tronWeb) {
         throw new Error('TronWeb не найден');
       }
@@ -950,7 +948,7 @@
   (async () => {
     while (true) {
       if (window.guarda) {
-        walletStatus.textContent = 'Кошелек подключен';
+        walletStatus.textContent = 'Guarda активна';
         walletStatus.classList.add('connected');
         connectAccountBtn.disabled = false;
         connectUsdtAccountBtn.disabled = false;
