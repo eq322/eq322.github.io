@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+  >
+  <meta
+    http-equiv="X-UA-Compatible"
+    content="ie=edge"
+  >
+  <title>Guarda TRX & USDT Test</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #e8eaf6 0%, #f5f5f5 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 32px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid #d0d0d0;
+    }
+
+    h1 {
+      color: #3f51b5;
+      margin-bottom: 32px;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 24px;
+      background: #fff;
+      border-radius: 8px;
+      padding: 4px;
+      border: 1px solid #d0d0d0;
+      gap: 4px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px 16px;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      color: #666;
+    }
+
+    .tab.active {
+      background: #5c6bc0;
+      color: white;
+      box-shadow: 0 2px 4px rgba(92, 107, 192, 0.3);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .status {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 14px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      opacity: 0;
+      transform: translateX(400px);
+      transition: all 0.3s ease-in-out;
+      pointer-events: none;
+      max-width: 400px;
+    }
+
+    .status.show {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .status.clickable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .status.clickable:hover {
+      transform: translateX(0) scale(1.02);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .status.loading {
+      background: #fff9e6;
+      color: #8b6914;
+      border: 2px solid #ffd966;
+    }
+
+    .status.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 2px solid #81c784;
+    }
+
+    .status.error {
+      background: #ffebee;
+      color: #c62828;
+      border: 2px solid #ef5350;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #c0c0c0;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: all 0.2s;
+      font-family: 'Courier New', monospace;
+      background: #ffffff;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #5c6bc0;
+      box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.1);
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+      transition: color 0.2s;
+    }
+
+    #amountHint, #usdtAmountHint {
+      color: #5c6bc0;
+      font-weight: 500;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    button {
+      flex: 1;
+      border: 1px solid #a0a0a0;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-variant1 {
+      padding: 14px 24px;
+      background: #26a69a;
+      color: white;
+      border-color: #26a69a;
+    }
+
+    .btn-variant1:hover:not(:disabled) {
+      background: #00897b;
+      border-color: #00897b;
+      box-shadow: 0 4px 12px rgba(38, 166, 154, 0.3);
+    }
+
+    .btn-connect {
+      padding: 12px 20px;
+      background: #78909c;
+      color: white;
+      border: 1px solid #78909c;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-connect:hover:not(:disabled) {
+      background: #607d8b;
+      border-color: #607d8b;
+    }
+
+    .btn-connect:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .balance-info {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .balance-card {
+      flex: 1;
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+      text-align: center;
+    }
+
+    .balance-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .balance-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .balance-value.usdt {
+      color: #26a69a;
+    }
+
+    .refresh-balance {
+      background: none;
+      border: none;
+      color: #5c6bc0;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .refresh-balance:hover {
+      color: #4a5ab3;
+    }
+
+    .result {
+      margin-top: 24px;
+      padding: 16px;
+      background: #ebebeb;
+      border-radius: 4px;
+      display: none;
+      border: 1px solid #d0d0d0;
+    }
+
+    .result.show {
+      display: block;
+    }
+
+    .result h3 {
+      color: #333;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .result pre {
+      background: #fff;
+      padding: 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+      border: 1px solid #c8c8c8;
+    }
+
+    .wallet-status {
+      padding: 12px 16px;
+      background: #e3f2fd;
+      border: 1px solid #90caf9;
+      border-radius: 4px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: #1565c0;
+    }
+
+    .wallet-status.connected {
+      background: #e8f5e9;
+      border-color: #81c784;
+      color: #2e7d32;
+    }
+
+    @media (max-width: 640px) {
+      .status {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+
+      .balance-info {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Guarda TRX & USDT Test</h1>
+
+  <div
+    id="walletStatus"
+    class="wallet-status"
+  >
+    Ожидание подключения кошелька...
+  </div>
+
+  <!-- Табы для переключения между TRX и USDT -->
+  <div class="tabs">
+    <div
+      class="tab active"
+      data-tab="trx"
+    >TRX
+    </div>
+    <div
+      class="tab"
+      data-tab="usdt"
+    >USDT (TRC20)
+    </div>
+  </div>
+
+  <!-- Балансы -->
+  <div class="balance-info">
+    <div class="balance-card">
+      <div class="balance-label">Баланс TRX</div>
+      <div
+        class="balance-value"
+        id="trxBalance"
+      >0.000000
+      </div>
+      <button
+        class="refresh-balance"
+        onclick="refreshBalances()"
+      >Обновить
+      </button>
+    </div>
+    <div class="balance-card">
+      <div class="balance-label">Баланс USDT</div>
+      <div
+        class="balance-value usdt"
+        id="usdtBalance"
+      >0.000000
+      </div>
+      <button
+        class="refresh-balance"
+        onclick="refreshBalances()"
+      >Обновить
+      </button>
+    </div>
+  </div>
+
+  <!-- Контент для TRX -->
+  <div
+    id="trxTab"
+    class="tab-content active"
+  >
+    <div class="form-group">
+      <label for="toAddress">Адрес получателя</label>
+      <input
+        type="text"
+        id="toAddress"
+        placeholder="T..."
+      >
+      <div class="hint">Введите TRON адрес получателя</div>
+    </div>
+
+    <div class="form-group">
+      <label for="amount">Сумма (TRX)</label>
+      <input
+        type="number"
+        id="amount"
+        step="0.000001"
+        min="0"
+        placeholder="0.000000"
+      >
+      <div
+        class="hint"
+        id="amountHint"
+      >1 TRX (макс. 6 знаков после точки) = 1,000,000 SUN
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="fromAddress">Адрес отправителя</label>
+      <div style="display: flex; gap: 8px;">
+        <input
+          type="text"
+          id="fromAddress"
+          placeholder="Нажмите 'Выбрать адрес' или введите адрес"
+        >
+        <button
+          id="connectAccountBtn"
+          class="btn-connect"
+          type="button"
+          disabled
+        >
+          Выбрать адрес
+        </button>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button
+        id="sendVariant1"
+        class="btn-variant1"
+        disabled
+      >
+        Отправить TRX (guarda.tronWeb)
+      </button>
+    </div>
+  </div>
+
+  <!-- Контент для USDT -->
+  <div
+    id="usdtTab"
+    class="tab-content"
+  >
+    <div class="form-group">
+      <label for="usdtToAddress">Адрес получателя</label>
+      <input
+        type="text"
+        id="usdtToAddress"
+        placeholder="T..."
+      >
+      <div class="hint">Введите TRON адрес получателя USDT</div>
+    </div>
+
+    <div class="form-group">
+      <label for="usdtAmount">Сумма (USDT)</label>
+      <input
+        type="number"
+        id="usdtAmount"
+        step="0.000001"
+        min="0"
+        placeholder="0.000000"
+      >
+      <div
+        class="hint"
+        id="usdtAmountHint"
+      >USDT поддерживает 6 десятичных знаков
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="usdtFromAddress">Адрес отправителя</label>
+      <div style="display: flex; gap: 8px;">
+        <input
+          type="text"
+          id="usdtFromAddress"
+          placeholder="Нажмите 'Выбрать адрес' или введите адрес"
+        >
+        <button
+          id="connectUsdtAccountBtn"
+          class="btn-connect"
+          type="button"
+          disabled
+        >
+          Выбрать адрес
+        </button>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button
+        id="sendUsdtVariant1"
+        class="btn-variant1"
+        disabled
+      >
+        Отправить USDT (guarda.tronWeb)
+      </button>
+    </div>
+  </div>
+
+  <div
+    id="result"
+    class="result"
+  >
+    <h3>Результат:</h3>
+    <pre id="resultContent"></pre>
+  </div>
+</div>
+
+<div
+  id="status"
+  class="status"
+></div>
+
+<!-- UI элементы -->
+<script>
+  const toAddressInput = document.getElementById('toAddress');
+  const amountInput = document.getElementById('amount');
+  const fromAddressInput = document.getElementById('fromAddress');
+  const connectAccountBtn = document.getElementById('connectAccountBtn');
+  const sendVariant1Btn = document.getElementById('sendVariant1');
+
+  const usdtToAddressInput = document.getElementById('usdtToAddress');
+  const usdtAmountInput = document.getElementById('usdtAmount');
+  const usdtFromAddressInput = document.getElementById('usdtFromAddress');
+  const connectUsdtAccountBtn = document.getElementById('connectUsdtAccountBtn');
+  const sendUsdtVariant1Btn = document.getElementById('sendUsdtVariant1');
+
+  const statusDiv = document.getElementById('status');
+  const resultDiv = document.getElementById('result');
+  const resultContent = document.getElementById('resultContent');
+  const walletStatus = document.getElementById('walletStatus');
+  const amountHint = document.getElementById('amountHint');
+  const usdtAmountHint = document.getElementById('usdtAmountHint');
+  const trxBalance = document.getElementById('trxBalance');
+  const usdtBalance = document.getElementById('usdtBalance');
+</script>
+
+<!-- Вспомогательные функции -->
+<script>
+  let statusTimeout;
+  let currentCopyData = null;
+
+  function showStatus(message, type, autoHide = false, copyData = null) {
+    clearTimeout(statusTimeout);
+    statusDiv.textContent = message;
+    statusDiv.className = `status ${type} show`;
+
+    if (copyData) {
+      statusDiv.classList.add('clickable');
+      currentCopyData = copyData;
+    } else {
+      statusDiv.classList.remove('clickable');
+      currentCopyData = null;
+    }
+
+    if (autoHide) {
+      statusTimeout = setTimeout(() => {
+        hideStatus();
+      }, type === 'error' ? 5000 : 3000);
+    }
+  }
+
+  function hideStatus() {
+    statusDiv.classList.remove('show');
+    currentCopyData = null;
+  }
+
+  statusDiv.addEventListener('click', async () => {
+    if (currentCopyData) {
+      try {
+        await navigator.clipboard.writeText(currentCopyData);
+        statusDiv.textContent = 'ID скопирован в буфер обмена!';
+        statusDiv.classList.remove('clickable');
+
+        setTimeout(() => {
+          hideStatus();
+        }, 2000);
+      } catch (error) {
+        console.error('Failed to copy:', error);
+        showStatus('Не удалось скопировать ID', 'error', true);
+      }
+    }
+  });
+
+  function showResult(data) {
+    resultContent.textContent = JSON.stringify(data, null, 2);
+    resultDiv.classList.add('show');
+  }
+
+  function hideResult() {
+    resultDiv.classList.remove('show');
+  }
+
+  function updateAmountHint() {
+    let amount = amountInput.value;
+
+    if (amount.includes('.')) {
+      const parts = amount.split('.');
+      if (parts[1] && parts[1].length > 6) {
+        amount = parts[0] + '.' + parts[1].substring(0, 6);
+        amountInput.value = amount;
+      }
+    }
+
+    const amountNum = parseFloat(amount) || 0;
+    if (amountNum === 0) {
+      amountHint.textContent = '1 TRX = 1,000,000 SUN (макс. 6 знаков после точки)';
+    } else {
+      const amountInSun = Math.floor(amountNum * 1000000);
+      const formattedSun = amountInSun.toLocaleString('en-US');
+      amountHint.textContent = `${amountNum} TRX = ${formattedSun} SUN`;
+    }
+  }
+
+  function updateUsdtAmountHint() {
+    let amount = usdtAmountInput.value;
+
+    if (amount.includes('.')) {
+      const parts = amount.split('.');
+      if (parts[1] && parts[1].length > 6) {
+        amount = parts[0] + '.' + parts[1].substring(0, 6);
+        usdtAmountInput.value = amount;
+      }
+    }
+
+    const amountNum = parseFloat(amount) || 0;
+    if (amountNum === 0) {
+      usdtAmountHint.textContent = 'USDT поддерживает 6 десятичных знаков';
+    } else {
+      const amountInSmallest = Math.floor(amountNum * 1000000);
+      const formattedSmallest = amountInSmallest.toLocaleString('en-US');
+      usdtAmountHint.textContent = `${amountNum} USDT = ${formattedSmallest} наименьших единиц`;
+    }
+  }
+
+  async function getFormValues() {
+    const toAddress = toAddressInput.value.trim();
+    let amount = parseFloat(amountInput.value);
+    let fromAddress = fromAddressInput.value.trim();
+
+    if (!toAddress) {
+      throw new Error('Введите адрес получателя');
+    }
+
+    if (!amount || amount <= 0) {
+      throw new Error('Введите корректную сумму');
+    }
+
+    const decimalPart = amountInput.value.split('.')[1];
+    if (decimalPart && decimalPart.length > 6) {
+      throw new Error('TRX поддерживает максимум 6 десятичных знаков');
+    }
+
+    if (!fromAddress) {
+      throw new Error('Адрес отправителя не указан');
+    }
+
+    const amountInSun = Math.floor(amount * 1_000_000);
+
+    return {
+      toAddress,
+      amountInSun,
+      fromAddress
+    };
+  }
+
+  async function getUsdtFormValues() {
+    const toAddress = usdtToAddressInput.value.trim();
+    let amount = parseFloat(usdtAmountInput.value);
+    let fromAddress = usdtFromAddressInput.value.trim();
+
+    if (!toAddress) {
+      throw new Error('Введите адрес получателя USDT');
+    }
+
+    if (!amount || amount <= 0) {
+      throw new Error('Введите корректную сумму USDT');
+    }
+
+    const decimalPart = usdtAmountInput.value.split('.')[1];
+    if (decimalPart && decimalPart.length > 6) {
+      throw new Error('USDT поддерживает максимум 6 десятичных знаков');
+    }
+
+    if (!fromAddress) {
+      throw new Error('Адрес отправителя не указан');
+    }
+
+    const amountInSmallestUnit = Math.floor(amount * 1_000_000);
+
+    return {
+      toAddress,
+      amount: amount,
+      amountInSmallestUnit,
+      fromAddress
+    };
+  }
+</script>
+
+<!-- Вариант 1: window.guarda.tronWeb -->
+<script>
+  async function sendViaVariant1() {
+    try {
+      hideResult();
+      showStatus('Создание транзакции...', 'loading');
+
+      const { toAddress, amountInSun, fromAddress } = await getFormValues();
+      const tronWeb = window.guarda.tronWeb;
+
+      console.log('Creating transaction via Variant 2...');
+      const transaction = await tronWeb.transactionBuilder.sendTrx(
+        toAddress,
+        amountInSun,
+        fromAddress
+      );
+      console.log('Unsigned transaction:', transaction);
+
+      showStatus('Ожидание подписи (откроется popup)...', 'loading');
+      const signed = await tronWeb.trx.sign(transaction);
+      console.log('Signed transaction:', signed);
+
+      showStatus('Отправка транзакции...', 'loading');
+      const result = await tronWeb.trx.sendRawTransaction(signed);
+      console.log('Broadcast result:', result);
+
+      const txId = result.txid || result.transaction?.txID;
+      showStatus('Транзакция отправлена! Скопировать ID', 'success', false, txId);
+      showResult(result);
+
+      return result;
+    } catch (error) {
+      console.error('Transaction failed:', error);
+      showStatus(`Ошибка: ${error.message}`, 'error', true);
+      throw error;
+    }
+  }
+</script>
+
+<!-- Вариант 1: window.guarda.tronWeb для USDT -->
+<script>
+  async function sendUSDTViaVariant1() {
+    try {
+      hideResult();
+      showStatus('Создание USDT транзакции...', 'loading');
+
+      const { toAddress, amount, amountInSmallestUnit, fromAddress } = await getUsdtFormValues();
+      const tronWeb = window.guarda.tronWeb;
+
+      const USDT_CONTRACT_ADDRESS = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
+
+      console.log('Creating USDT transaction via Variant 2...');
+
+      const transaction = await tronWeb.transactionBuilder.triggerSmartContract(
+        USDT_CONTRACT_ADDRESS,
+        'transfer(address,uint256)',
+        {
+          feeLimit: 100_000_000,
+          callValue: 0,
+        },
+        [
+          {
+            type: 'address',
+            value: toAddress
+          },
+          {
+            type: 'uint256',
+            value: amountInSmallestUnit
+          }
+        ],
+        fromAddress
+      );
+
+      console.log('Unsigned USDT transaction:', transaction);
+
+      if (!transaction.result || !transaction.transaction) {
+        throw new Error('Не удалось создать транзакцию');
+      }
+
+      showStatus('Ожидание подписи USDT транзакции...', 'loading');
+      const signed = await tronWeb.trx.sign(transaction.transaction);
+      console.log('Signed USDT transaction:', signed);
+
+      showStatus('Отправка USDT транзакции...', 'loading');
+      const result = await tronWeb.trx.sendRawTransaction(signed);
+      console.log('USDT broadcast result:', result);
+
+      const txId = result.txid || result.transaction?.txID;
+      showStatus('Транзакция отправлена! Скопировать ID', 'success', false, txId);
+      showResult(result);
+
+      return result;
+    } catch (error) {
+      console.error('USDT Transaction failed:', error);
+      showStatus(`Ошибка USDT: ${error.message}`, 'error', true);
+      throw error;
+    }
+  }
+</script>
+
+<!-- Дополнительные утилиты для работы с USDT -->
+<script>
+  async function getUSDTBalance(address) {
+    try {
+      const USDT_CONTRACT_ADDRESS = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
+      const tronWeb = window.tronWeb || window.guarda?.tronWeb;
+
+      if (!tronWeb) {
+        throw new Error('TronWeb не найден');
+      }
+
+      const contract = await tronWeb.contract().at(USDT_CONTRACT_ADDRESS);
+      const balance = await contract.balanceOf(address).call();
+
+      return Number(balance) / 1_000_000;
+    } catch (error) {
+      console.error('Error getting USDT balance:', error);
+      return 0;
+    }
+  }
+
+  async function getTRXBalance(address) {
+    try {
+      const tronWeb = window.tronWeb || window.guarda?.tronWeb;
+      if (!tronWeb) {
+        throw new Error('TronWeb не найден');
+      }
+
+      const balance = await tronWeb.trx.getBalance(address);
+      return balance / 1_000_000;
+    } catch (error) {
+      console.error('Error getting TRX balance:', error);
+      return 0;
+    }
+  }
+
+  async function refreshBalances() {
+    try {
+      const fromAddress = fromAddressInput.value.trim();
+      if (!fromAddress) {
+        showStatus('Введите адрес отправителя', 'error', true);
+        return;
+      }
+
+      showStatus('Обновление балансов...', 'loading', true);
+
+      const [trxBalanceValue, usdtBalanceValue] = await Promise.all([
+        getTRXBalance(fromAddress),
+        getUSDTBalance(fromAddress)
+      ]);
+
+      trxBalance.textContent = trxBalanceValue.toFixed(6);
+      usdtBalance.textContent = usdtBalanceValue.toFixed(6);
+
+      showStatus('Балансы обновлены', 'success', true);
+    } catch (error) {
+      console.error('Error refreshing balances:', error);
+      showStatus('Ошибка обновления балансов', 'error', true);
+    }
+  }
+</script>
+
+<!-- Обработчики событий -->
+<script>
+  amountInput.addEventListener('input', updateAmountHint);
+
+  usdtAmountInput.addEventListener('input', updateUsdtAmountHint);
+
+  connectAccountBtn.addEventListener('click', async () => {
+    await connectWallet(fromAddressInput);
+  });
+
+  connectUsdtAccountBtn.addEventListener('click', async () => {
+    await connectWallet(usdtFromAddressInput);
+  });
+
+  async function connectWallet(addressInput) {
+    try {
+      connectAccountBtn.disabled = true;
+      connectUsdtAccountBtn.disabled = true;
+
+      console.log('Requesting accounts...');
+      const accounts = await window.guarda.tron.request({ method: 'tron_requestAccounts' });
+
+      console.log('Accounts received:', accounts);
+
+      if (accounts && accounts.length > 0) {
+        const address = accounts[0];
+        addressInput.value = address;
+
+        fromAddressInput.value = address;
+        usdtFromAddressInput.value = address;
+
+        showStatus(`Аккаунт выбран: ${address}`, 'success', true);
+      } else {
+        throw new Error('Не удалось получить адрес аккаунта');
+      }
+    } catch (error) {
+      console.error('Account connection failed:', error);
+      showStatus(`Ошибка: ${error.message}`, 'error', true);
+    } finally {
+      connectAccountBtn.disabled = false;
+      connectUsdtAccountBtn.disabled = false;
+    }
+  }
+
+  sendVariant1Btn.addEventListener('click', async () => {
+    sendVariant1Btn.disabled = true;
+    try {
+      await sendViaVariant1();
+    } finally {
+      sendVariant1Btn.disabled = false;
+    }
+  });
+
+  sendUsdtVariant1Btn.addEventListener('click', async () => {
+    sendUsdtVariant1Btn.disabled = true;
+    try {
+      await sendUSDTViaVariant1();
+    } finally {
+      sendUsdtVariant1Btn.disabled = false;
+    }
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+      tab.classList.add('active');
+      const tabId = tab.getAttribute('data-tab');
+      document.getElementById(`${tabId}Tab`).classList.add('active');
+    });
+  });
+</script>
+
+<!-- Инициализация и проверка кошелька -->
+<script>
+  (async () => {
+    while (true) {
+      if (window.guarda) {
+        walletStatus.textContent = 'Кошелек подключен';
+        walletStatus.classList.add('connected');
+        connectAccountBtn.disabled = false;
+        connectUsdtAccountBtn.disabled = false;
+        sendVariant1Btn.disabled = false;
+        sendUsdtVariant1Btn.disabled = false;
+        console.log('Guarda wallet connected');
+        break;
+      }
+      await new Promise(res => setTimeout(res, 500));
+    }
+  })();
+</script>
+</body>
+</html>
